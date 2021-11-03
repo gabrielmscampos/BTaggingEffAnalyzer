@@ -1,0 +1,38 @@
+{
+    "2016": {
+        "DeepCSV": {
+            "loose": 0.2217,
+            "medium": 0.6321,
+            "tight": 0.8953
+        },
+        "DeepJet": {
+            "loose": 0.0614,
+            "medium": 0.3093,
+            "tight": 0.7221
+        }
+    },
+    "2017": {
+        "DeepCSV": {
+            "loose": 0.1355,
+            "medium": 0.4506,
+            "tight": 0.7738
+        },
+        "DeepJet": {
+            "loose": 0.0532,
+            "medium": 0.3040,
+            "tight": 0.7476
+        }
+    },
+    "2018": {
+        "DeepCSV": {
+            "loose": 0.1208,
+            "medium": 0.4168,
+            "tight": 0.7665
+        },
+        "DeepJet": {
+            "loose": 0.0490,
+            "medium": 0.2783,
+            "tight": 0.7100
+        }
+    }
+}

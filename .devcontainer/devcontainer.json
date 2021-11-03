@@ -1,0 +1,105 @@
+{
+	// Container name
+	"name": "btaggingEffAnalyzer",
+	// Extra arguments
+	"runArgs": [
+		"--init"
+	],
+	// Build configuration
+	"build": {
+		"dockerfile": "Dockerfile",
+		"context": ".",
+		"args": {
+			// Update 'VARIANT' to pick a Python version: 3, 3.10, 3.9, 3.8, 3.7, 3.6
+			// Append -bullseye or -buster to pin to an OS version.
+			// Use -bullseye variants on local on arm64/Apple Silicon.
+			"VARIANT": "3.8",
+			// Options
+			"POETRY_VERSION": "1.1.11",
+			"NODE_VERSION": "none",
+			"AWS_CLI": "no",
+			"DOCKER": "no",
+			"DOCKER_COMPOSE": "no"
+		}
+	},
+	// Mount workspace
+	"workspaceFolder": "/workspace",
+	"workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
+	// External volume mounting
+	"mounts": [
+		"source=/mnt/sandisk/cernbox,target=/cernbox,type=bind",
+		// Remove if Docker will not be installed inside container
+		// "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind",
+		// Remove if ssh credentials are not needed inside container
+		"source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/vscode/.ssh,type=bind",
+		// Remove if aws credentials are not needed inside container
+		// "source=${localEnv:HOME}${localEnv:USERPROFILE}/.aws,target=/home/vscode/.aws,type=bind",
+	],
+	// Set *default* container specific settings.json values on container create.
+	"settings": {
+		"editor.bracketPairColorization.enabled": true,
+		"editor.formatOnSave": true,
+		"terminal.integrated.defaultProfile.linux": "zsh",
+		"terminal.integrated.profiles.linux": {
+			"Zsh": {
+				"path": "bin/zsh"
+			},
+			"Bash": {
+				"path": "/bin/bash"
+			}
+		},
+		"[python]": {
+			"editor.codeActionsOnSave": {
+				"source.organizeImports": true
+			}
+		},
+		"python.pythonPath": "/usr/local/bin/python",
+		"python.languageServer": "Pylance",
+		"python.linting.enabled": true,
+		"python.linting.pylintEnabled": true,
+		"python.linting.pylamaEnabled": false,
+		"python.linting.flake8Enabled": false,
+		"python.formatting.provider": "black",
+		"python.formatting.autopep8Path": "/usr/local/py-utils/bin/autopep8",
+		"python.formatting.blackPath": "/usr/local/py-utils/bin/black",
+		"python.formatting.yapfPath": "/usr/local/py-utils/bin/yapf",
+		"python.linting.banditPath": "/usr/local/py-utils/bin/bandit",
+		"python.linting.flake8Path": "/usr/local/py-utils/bin/flake8",
+		"python.linting.mypyPath": "/usr/local/py-utils/bin/mypy",
+		"python.linting.pycodestylePath": "/usr/local/py-utils/bin/pycodestyle",
+		"python.linting.pydocstylePath": "/usr/local/py-utils/bin/pydocstyle",
+		"python.linting.pylintPath": "/usr/local/py-utils/bin/pylint",
+		"python.linting.pylamaPath": "/usr/local/bin/pylama",
+		"python.testing.pytestPath": "/usr/local/bin/pytest",
+		"python.testing.unittestEnabled": false,
+		"python.testing.nosetestsEnabled": false,
+		"python.testing.pytestEnabled": true,
+		"python.testing.pytestArgs": [
+			"tests"
+		],
+	},
+	// Add the IDs of extensions you want installed when the container is created.
+	"extensions": [
+		"ms-python.python",
+		"ms-python.vscode-pylance",
+		"njpwerner.autodocstring",
+		"piotrpalarz.vscode-gitignore-generator",
+		"donjayamanne.githistory",
+		"eamodio.gitlens",
+		"yzhang.markdown-all-in-one",
+		"andyyaldoo.vscode-json",
+		"redhat.vscode-yaml",
+		"redhat.vscode-xml",
+		"bungcip.better-toml"
+	],
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [],
+	// Use 'postCreateCommand' to run commands after the container is created.
+	// "postCreateCommand": "",
+	// Hard coded environment variables
+	"containerEnv": {
+		"PYTHONPATH": "/workspace"
+	},
+	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
+	"remoteUser": "vscode",
+}

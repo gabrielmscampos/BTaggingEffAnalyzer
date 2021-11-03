@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "btaggingEffAnalyzer"
+version = "0.1.0"
+description = "Project for generating MC efficiency maps"
+authors = ["Gabriel Moreira <gabrielmscampos@gmail.com>"]
+license = "The Unlicense"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+ipykernel = "^6.4.2"
+notebook = "^6.4.5"
+anatools = {git = "https://github.com/DESY-CBPF-UERJ/ANATools.git", rev = "main"}
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
