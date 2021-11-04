@@ -1,6 +1,6 @@
 {
 	// Container name
-	"name": "btaggingEffAnalyzer",
+	"name": "btaggingEffMaps",
 	// Extra arguments
 	"runArgs": [
 		"--init"
