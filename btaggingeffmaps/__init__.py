@@ -89,7 +89,16 @@ class BTaggingEfficiencyMap:
 
         return pt_bins
 
-    def make(self, pt_min=None, pt_max=None, step_size=None, max_unc=None):
+    def make(
+        self,
+        pt_min=None,
+        pt_max=None,
+        step_size=None,
+        max_unc=None,
+        find_best_unc=True,
+        unc_stop=0.5,
+        unc_increase=0.001,
+    ):
         """
         Make b-tagging efficiency map for given dataset
         """
@@ -114,12 +123,16 @@ class BTaggingEfficiencyMap:
                 munc = max_unc.get(hf_value)
 
             self.df_hf_tagged = df_btag.copy()
-            pt_bins = []
-            while len(pt_bins) <= 2:
+
+            if find_best_unc:
+                pt_bins = []
+                while len(pt_bins) <= 2:
+                    pt_bins = self.compute_pt_bins(pt_min, pt_max, step_size, munc)
+                    if munc >= unc_stop:
+                        break
+                    munc += unc_increase
+            else:
                 pt_bins = self.compute_pt_bins(pt_min, pt_max, step_size, munc)
-                if munc >= 0.5:
-                    break
-                munc += 0.001
 
             # Compute efficiency histogram
             hist_flav, xedges_flav, yedges_flav = np.histogram2d(
