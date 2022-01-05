@@ -25,15 +25,18 @@ class BTaggingEfficiencyMap:
         self.df = df
         self.eta_bins = eta_bins
 
-    def calib(self, year, algo, working_point):
+    def calib(self, year, apv, algo, working_point):
         """
         Calibrate dataset for b-tagging algorithm working point.
 
         Args:
             year (str): Monte Carlo campaign year - 2016, 2017, 2018
+            apv (bool): Flag that indicates if it is an APV dataset
             algo (str): b-tagging algorithm - DeepCSV, DeepJet
             working_point (str): b-tagging algorithm working point - loose, medium, tight
         """
+        if apv:
+            year = f"APV_{year}"
         btag_thr = btagging.get(year).get(algo).get(working_point)
         if algo.lower() == "deepcsv":
             df_tagged = self.df[self.df.Jet_btagDeepB > btag_thr]
