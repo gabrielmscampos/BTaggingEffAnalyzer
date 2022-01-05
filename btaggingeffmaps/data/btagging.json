@@ -1,14 +1,26 @@
 {
-    "2016": {
+    "APV_2016": {
         "DeepCSV": {
-            "loose": 0.2217,
-            "medium": 0.6321,
-            "tight": 0.8953
+            "loose": 0.2027,
+            "medium": 0.6001,
+            "tight": 0.8819
         },
         "DeepJet": {
-            "loose": 0.0614,
-            "medium": 0.3093,
-            "tight": 0.7221
+            "loose": 0.0508,
+            "medium": 0.2598,
+            "tight": 0.6502
+        }
+    },
+    "2016": {
+        "DeepCSV": {
+            "loose": 0.1918,
+            "medium": 0.5847,
+            "tight": 0.8767
+        },
+        "DeepJet": {
+            "loose": 0.0480,
+            "medium": 0.2489,
+            "tight": 0.6377
         }
     },
     "2017": {
