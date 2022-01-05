@@ -8,6 +8,7 @@ license = "The Unlicense"
 [tool.poetry.dependencies]
 python = "^3.8"
 anatools = {git = "https://github.com/DESY-CBPF-UERJ/ANATools.git", rev = "main"}
+pyarrow = "^6.0.1"
 
 [tool.poetry.dev-dependencies]
 ipykernel = "^6.5.0"
