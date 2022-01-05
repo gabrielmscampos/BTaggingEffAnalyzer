@@ -28,6 +28,7 @@
 	// External volume mounting
 	"mounts": [
 		"source=/mnt/sandisk/cernbox,target=/cernbox,type=bind",
+		"source=/mnt/sandisk/dust,target=/dust,type=bind",
 		// Remove if Docker will not be installed inside container
 		// "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind",
 		// Remove if ssh credentials are not needed inside container
