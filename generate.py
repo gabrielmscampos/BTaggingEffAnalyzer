@@ -29,7 +29,7 @@ KEYS = [
 ]
 
 
-def find_maximum_pt_cut(datasets, pt_max=1000.0, threshold=0.001):
+def find_maximum_pt_cut(_datasets, _pt_max=1000.0, threshold=0.001):
     """
     Find maximum pt cut in dataset in which excluded events are lesser then (threshold*100)%
 
@@ -44,57 +44,21 @@ def find_maximum_pt_cut(datasets, pt_max=1000.0, threshold=0.001):
     stop_search = False
     while stop_search is False:
         above_thr = False
-        for dataset_name in datasets.keys():
-            df_alljets = datasets.get(dataset_name).reset_index(drop=True)
+        for _dataset_name, _dataset in _datasets.items():
+            df_alljets = _dataset.reset_index(drop=True)
             n_total = df_alljets.evtWeight.sum()
-            n_above_cut = df_alljets[df_alljets.Jet_pt > pt_max].evtWeight.sum()
+            n_above_cut = df_alljets[df_alljets.Jet_pt > _pt_max].evtWeight.sum()
             quant = n_above_cut / n_total
             if quant > threshold:
                 above_thr = True
                 quant = "{:.1f}%".format(100 * quant)
-                print(dataset_name, "->", quant)
+                print(_dataset_name, "->", quant)
         if above_thr:
-            pt_max += 10
+            _pt_max += 10
         else:
             stop_search = True
-    print(f"Chosen pt_max = {pt_max}")
-    return pt_max
-
-
-def make_btagging_eff_maps(dataset, metadata):
-    """
-    Simple function to use `btaggingeffmaps` passing arguments in dict,
-    special usage whith multiprocess from concurrent.futures
-
-    Args:
-        metadata (dict): Arguments to make btagging efficiency maps
-
-    Returns:
-        tuple: Analyzed dataset name and efficiency map
-    """
-    for key in KEYS:
-        if key not in metadata.keys():
-            raise ValueError(f"Key {key} not found in metadata.")
-
-    df = dataset.reset_index(drop=True)
-    mmap = btef.BTaggingEfficiencyMap(df, metadata.get("eta_bins"))
-    mmap.calib(
-        metadata.get("year"),
-        metadata.get("apv"),
-        metadata.get("algo"),
-        metadata.get("working_point"),
-    )
-    eff_map = mmap.make(
-        metadata.get("pt_min"),
-        metadata.get("pt_max"),
-        metadata.get("step_size"),
-        metadata.get("max_unc"),
-        metadata.get("find_best_unc"),
-        metadata.get("unc_stop"),
-        metadata.get("unc_increase"),
-    )
-
-    return (metadata.get("dataset_name"), eff_map)
+    print(f"Chosen pt_max = {_pt_max}")
+    return _pt_max
 
 
 if __name__ == "__main__":
@@ -196,10 +160,10 @@ if __name__ == "__main__":
     if os.path.exists(uncertainty_map_fpath) is False:
         accepted_unc = {
             dataset_name: {"b": 0.001, "c": 0.001, "udsg": 0.001}
-            for dataset_name in datasets.keys()
+            for dataset_name in datasets
         }
     else:
-        with open(uncertainty_map_fpath, "r") as f:
+        with open(uncertainty_map_fpath, "r", encoding="utf-8") as f:
             accepted_unc = json.load(f)
 
     eff_maps = {}
@@ -248,7 +212,7 @@ if __name__ == "__main__":
             f"{dataset_name}_effetabin_{args.algo}-{args.working_point}.png",
         )
         fig = plt.figure(figsize=(24, 8))
-        for i, hf in enumerate(eff_map.keys()):
+        for idx, hf in enumerate(eff_map.keys()):
             dt = eff_map.get(hf)
             eta_min = np.array([d.get("eta_min") for d in dt])
             pt_min = np.array([d.get("pt_min") for d in dt])
@@ -259,9 +223,9 @@ if __name__ == "__main__":
             pt_min = pt_min.reshape(shape)[:, 0]
             eff = eff.reshape(shape)
 
-            ax = fig.add_subplot(1, 3, i + 1)
-            for i, eta in enumerate(eta_min):
-                ax.plot(pt_min, eff[:, i], label=f"eta bin {eta}")
+            ax = fig.add_subplot(1, 3, idx + 1)
+            for jdx, eta in enumerate(eta_min):
+                ax.plot(pt_min, eff[:, jdx], label=f"eta bin {eta}")
 
             ax.set_title(f"{dataset_name}: {hf}-jets", fontsize=18)
             ax.set_xlabel("pt")
