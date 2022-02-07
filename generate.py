@@ -97,6 +97,7 @@ if __name__ == "__main__":
         required=False,
         default="./output",
     )
+    parser.add_argument("--max-events", dest="max_events", type=int)
 
     parser.set_defaults(apv=False)
     parser.set_defaults(find_best_unc=True)
@@ -136,6 +137,12 @@ if __name__ == "__main__":
     for dtname in list(datasets.keys()):
         if dtname.startswith("DYJetsToLL_"):
             del datasets[dtname]
+
+    if args.max_events != -1:
+        for dtname in list(datasets.keys()):
+            datasets[dtname] = datasets[dtname][
+                datasets[dtname].EventPosition <= args.max_events
+            ]
 
     #######################
     # Find maximum pt cut
