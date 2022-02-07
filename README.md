@@ -41,4 +41,26 @@ python generate.py \
     --output-path ./output
 ```
 
+It is also possible to limit the number of events that are going to be swept using `--max-events` argument as following:
+
+```bash
+python generate.py \
+    --period 16 \
+    --basedir /dust/btaggingEffMaps \
+    --apv \
+    --algo DeepJet \
+    --working-point medium \
+    --eta-bins 0. 0.6 1.2 2.4 \
+    --pt-min 20. \
+    --pt-max 1000. \
+    --pt-max-thr 0.001 \
+    --step-size 5. \
+    --unc-stop 0.3 \
+    --unc-increase 0.0002 \
+    --output-path ./output \
+    --max-events 2000
+```
+
+Using `-1` will consider all available events in the dataset.
+
 When specifying the argument `--not-find-best-unc` the code will not try to adjust the best maximum uncertainty allowed for each dataset, this optimization depends heavily on available statistics and will slow down code execution if turned on (default). Be aware that optimizing maximum allowed uncertainty impacts heavily on effiency maps shape which can be seen in efficiency per eta bin plots.
