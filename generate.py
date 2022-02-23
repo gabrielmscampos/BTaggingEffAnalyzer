@@ -163,15 +163,27 @@ if __name__ == "__main__":
     efficiency_map_fpath = os.path.join(args.output_path, efficiency_map_fname)
     uncertainty_map_fpath = os.path.join(args.output_path, uncertainty_map_fname)
 
-    # Use uncertainty map if already exists, otherwise create with default values
-    if os.path.exists(uncertainty_map_fpath) is False:
+    # If is to find-best-unc, any old uncertainty map will be overwritten
+    # If is not-find-best-unc use uncertainty map if already exists, otherwise create with default values
+    if args.find_best_unc:
         accepted_unc = {
             dataset_name: {"b": 0.001, "c": 0.001, "udsg": 0.001}
             for dataset_name in datasets
         }
     else:
-        with open(uncertainty_map_fpath, "r", encoding="utf-8") as f:
-            accepted_unc = json.load(f)
+        if os.path.exists(uncertainty_map_fpath):
+            with open(uncertainty_map_fpath, "r", encoding="utf-8") as f:
+                accepted_unc = json.load(f)
+            for dataset_name in datasets:
+                if dataset_name not in accepted_unc.keys():
+                    raise ValueError(
+                        f"The dataset {dataset_name} that you are trying to generate a map is no present in the existent uncertainty map ({uncertainty_map_fpath})."
+                    )
+        else:
+            accepted_unc = {
+                dataset_name: {"b": 0.001, "c": 0.001, "udsg": 0.001}
+                for dataset_name in datasets
+            }
 
     eff_maps = {}
     unc_maps = {}
