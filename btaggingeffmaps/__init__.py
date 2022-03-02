@@ -67,13 +67,13 @@ class BTaggingEfficiencyMap:
             hist_tag, _, _ = np.histogram2d(
                 self.df_hf_tagged.Jet_pt,
                 np.abs(self.df_hf_tagged.Jet_eta),
-                bins=[pt_bins, self.eta_bins],
+                bins=[current_bin, self.eta_bins],
                 weights=self.df_hf_tagged.evtWeight,
             )
             hist_tag2, _, _ = np.histogram2d(
                 self.df_hf_tagged.Jet_pt,
                 np.abs(self.df_hf_tagged.Jet_eta),
-                bins=[pt_bins, self.eta_bins],
+                bins=[current_bin, self.eta_bins],
                 weights=self.df_hf_tagged.evtWeight ** 2,
             )
             unc = np.sqrt(hist_tag2) / hist_tag
