@@ -5,7 +5,7 @@
 
 ### Custom ###
 output/*
-
+deprecated/*
 
 ### JupyterNotebooks ###
 # gitignore template for Jupyter Notebooks
