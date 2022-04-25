@@ -98,9 +98,16 @@ if __name__ == "__main__":
         default="./output",
     )
     parser.add_argument("--max-events", dest="max_events", type=int)
+    parser.add_argument(
+        "--uncertainty-error-method",
+        dest="uncertainty_error_method",
+        type=str,
+        required=False,
+    )
 
     parser.set_defaults(apv=False)
     parser.set_defaults(find_best_unc=True)
+    parser.set_defaults(uncertainty_error_method="clopper")
     args = parser.parse_args()
 
     print(
@@ -117,6 +124,7 @@ if __name__ == "__main__":
         f"unc_stop: {args.unc_stop}\n"
         f"unc_increase: {args.unc_increase}\n"
         f"find_best_unc: {args.find_best_unc}\n"
+        f"uncertainty_error_method: {args.uncertainty_error_method}\n"
         f"output_path: {args.output_path}"
     )
 
@@ -181,7 +189,7 @@ if __name__ == "__main__":
                     )
         else:
             accepted_unc = {
-                dataset_name: {"b": 0.001, "c": 0.001, "udsg": 0.001}
+                dataset_name: {"b": 0.05, "c": 0.05, "udsg": 0.05}
                 for dataset_name in datasets
             }
 
@@ -199,7 +207,7 @@ if __name__ == "__main__":
         )
         eff_map, unc_map = mmap.make(
             args.pt_min,
-            args.pt_max,
+            pt_max,
             args.step_size,
             accepted_unc.get(dataset_name),
             args.find_best_unc,
@@ -232,22 +240,64 @@ if __name__ == "__main__":
         )
         fig = plt.figure(figsize=(24, 8))
         for idx, hf in enumerate(eff_map.keys()):
-            dt = eff_map.get(hf)
-            eta_min = np.array([d.get("eta_min") for d in dt])
-            pt_min = np.array([d.get("pt_min") for d in dt])
-            eff = np.array([d.get("eff") for d in dt])
+            eff_values = eff_map.get(hf)
+            eta_min = np.array([d.get("eta_min") for d in eff_values])
+            pt_min = np.array([d.get("pt_min") for d in eff_values])
+            pt_max = np.array([d.get("pt_max") for d in eff_values])
+            eff = np.array([d.get("eff") for d in eff_values])
+            eff_err_prop = np.array([d.get("eff_err_prop") for d in eff_values])
+            eff_err_clopper_below = np.array(
+                [d.get("eff_err_clopper")[0] for d in eff_values]
+            )
+            eff_err_clopper_above = np.array(
+                [d.get("eff_err_clopper")[1] for d in eff_values]
+            )
 
             shape = (int(pt_min.size / 3), 3)
             eta_min = eta_min.reshape(shape)[0]
             pt_min = pt_min.reshape(shape)[:, 0]
+            pt_max = pt_max.reshape(shape)[:, 0]
+            pt_bins = (pt_max + pt_min) / 2
             eff = eff.reshape(shape)
+            eff_err_prop = eff_err_prop.reshape(shape)
+            eff_err_clopper_below = eff_err_clopper_below.reshape(shape)
+            eff_err_clopper_above = eff_err_clopper_above.reshape(shape)
 
             ax = fig.add_subplot(1, 3, idx + 1)
             for jdx, eta in enumerate(eta_min):
-                ax.plot(pt_min, eff[:, jdx], label=f"eta bin {eta}")
 
-            ax.set_title(f"{dataset_name}: {hf}-jets", fontsize=18)
-            ax.set_xlabel("pt")
+                if args.uncertainty_error_method == "clopper":
+                    yerr = [
+                        eff_err_clopper_below[:, jdx],
+                        eff_err_clopper_above[:, jdx],
+                    ]
+                elif args.uncertainty_error_method == "propagation":
+                    yerr = eff_err_prop
+
+                ax.errorbar(
+                    pt_bins,
+                    eff[:, jdx],
+                    yerr=yerr,
+                    fmt="o",
+                    label=f"eta bin {eta}",
+                    ls="-",
+                )
+
+                if pt_bins.size > 1:
+                    ax.set_xlim([pt_min[0], pt_min[-1]])
+
+            if hf == "b":
+                ax.set_ylim(0.7, 1.0)
+                ax.set_xlim(20, 200)
+            elif hf == "c":
+                ax.set_ylim(0.3, 0.5)
+                ax.set_xlim(20, 130)
+            elif hf == "udsg":
+                ax.set_ylim(0.05, 0.3)
+                ax.set_xlim(20, 600)
+
+            ax.set_title(f"[{outname_year}] {dataset_name}: {hf}-jets", fontsize=18)
+            ax.set_xlabel("pt [GeV]")
             ax.set_ylabel("efficiency")
             ax.legend()
 
