@@ -4,6 +4,7 @@ import json
 import pkgutil
 
 import numpy as np
+import statsmodels.stats.proportion as prop
 
 btagging_file = pkgutil.get_data(__package__, "data/btagging.json").decode("utf-8")
 btagging = json.loads(btagging_file)
@@ -74,7 +75,7 @@ class BTaggingEfficiencyMap:
                 self.df_hf_tagged.Jet_pt,
                 np.abs(self.df_hf_tagged.Jet_eta),
                 bins=[current_bin, self.eta_bins],
-                weights=self.df_hf_tagged.evtWeight ** 2,
+                weights=self.df_hf_tagged.evtWeight**2,
             )
             unc = np.sqrt(hist_tag2) / hist_tag
             if (unc < max_unc).all() and (unc > 0).all():
@@ -144,26 +145,70 @@ class BTaggingEfficiencyMap:
                 bins=[pt_bins, self.eta_bins],
                 weights=df_flav.evtWeight,
             )
+            hist_flav_pow2, _, _ = np.histogram2d(
+                df_flav.Jet_pt,
+                np.abs(df_flav.Jet_eta),
+                bins=[pt_bins, self.eta_bins],
+                weights=df_flav.evtWeight**2,
+            )
+            hist_flav_noweight, _, _ = np.histogram2d(
+                df_flav.Jet_pt,
+                np.abs(df_flav.Jet_eta),
+                bins=[pt_bins, self.eta_bins],
+            )
+
             hist_btag, _, _ = np.histogram2d(
                 df_btag.Jet_pt,
                 np.abs(df_btag.Jet_eta),
                 bins=[pt_bins, self.eta_bins],
                 weights=df_btag.evtWeight,
             )
+            hist_btag_pow2, _, _ = np.histogram2d(
+                df_btag.Jet_pt,
+                np.abs(df_btag.Jet_eta),
+                bins=[pt_bins, self.eta_bins],
+                weights=df_btag.evtWeight**2,
+            )
+            hist_btag_noweight, _, _ = np.histogram2d(
+                df_btag.Jet_pt,
+                np.abs(df_btag.Jet_eta),
+                bins=[pt_bins, self.eta_bins],
+            )
+
+            hist_flav_err = np.sqrt(hist_flav_pow2)
+            hist_btag_err = np.sqrt(hist_btag_pow2)
 
             effm = []
             for i in range(len(xedges_flav) - 1):
                 for j in range(len(yedges_flav) - 1):
                     eff = hist_btag[i, j] / hist_flav[i, j]
+                    eff_noweight = hist_btag_noweight[i, j] / hist_flav_noweight[i, j]
+                    eff_err_prop = eff * np.sqrt(
+                        (hist_btag_err[i, j] / hist_btag[i, j]) ** 2
+                        + (hist_flav_err[i, j] / hist_flav[i, j]) ** 2
+                    )
+                    y_below, y_above = prop.proportion_confint(
+                        hist_btag_noweight[i, j],
+                        hist_flav_noweight[i, j],
+                        alpha=0.32,
+                        method="beta",
+                    )
+                    eff_err_clopper = [eff_noweight - y_below, y_above - eff_noweight]
+
                     if np.isnan(eff):
                         eff = None
+                        eff_err_prop = None
+                        eff_err_clopper = [None, None]
+
                     effm.append(
                         {
                             "eta_min": yedges_flav[j],
                             "eta_max": yedges_flav[j + 1],
                             "pt_min": xedges_flav[i],
                             "pt_max": xedges_flav[i + 1],
-                            "eff": hist_btag[i, j] / hist_flav[i, j],
+                            "eff": eff,
+                            "eff_err_prop": eff_err_prop,
+                            "eff_err_clopper": eff_err_clopper,
                         }
                     )
             efficiency_map[hf_value] = effm
