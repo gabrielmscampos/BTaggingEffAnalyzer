@@ -4,9 +4,13 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=visualstudiocode,linux,jupyternotebooks,python
 
 ### Custom ###
-output/*
-deprecated/*
-scratch/*
+datasets/
+output/
+deprecated/
+scratch/
+python_modules/
+poetry.lock
+.tool-versions
 
 ### JupyterNotebooks ###
 # gitignore template for Jupyter Notebooks
